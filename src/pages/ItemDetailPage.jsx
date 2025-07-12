@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import { ArrowLeft, User, Calendar, Tag, Package, Star, Users } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import { ArrowLeft, User, Calendar, Tag, Package, Users } from "lucide-react";
 
 export const ItemDetailPage = () => {
   const { id } = useParams();
@@ -23,7 +23,7 @@ export const ItemDetailPage = () => {
       const response = await axios.get(`http://localhost:5000/api/items/${id}`);
       setItem(response.data);
     } catch (error) {
-      console.error('Error fetching item:', error);
+      console.error("Error fetching item:", error);
     } finally {
       setIsLoading(false);
     }
@@ -31,12 +31,12 @@ export const ItemDetailPage = () => {
 
   const handleRequestSwap = () => {
     // In a real app, this would open a swap request modal
-    alert('Swap request functionality would be implemented here');
+    alert("Swap request functionality would be implemented here");
   };
 
   const handleRedeemPoints = () => {
     // In a real app, this would handle point redemption
-    alert('Point redemption functionality would be implemented here');
+    alert("Point redemption functionality would be implemented here");
   };
 
   if (isLoading) {
@@ -74,15 +74,18 @@ export const ItemDetailPage = () => {
           <div className="space-y-4">
             <div className="aspect-square bg-white rounded-lg overflow-hidden shadow-sm">
               <img
-                src={item.images[currentImageIndex] 
-                  ? `http://localhost:5000/uploads/${item.images[currentImageIndex]}`
-                  : 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=800'
+                src={
+                  item.images[currentImageIndex]
+                    ? item.images[currentImageIndex].startsWith("http")
+                      ? item.images[currentImageIndex]
+                      : `http://localhost:5000/uploads/${item.images[currentImageIndex]}`
+                    : "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400"
                 }
                 alt={item.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-md"
               />
             </div>
-            
+
             {item.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
                 {item.images.map((image, index) => (
@@ -90,13 +93,21 @@ export const ItemDetailPage = () => {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`aspect-square bg-white rounded-md overflow-hidden border-2 ${
-                      currentImageIndex === index ? 'border-emerald-600' : 'border-gray-200'
+                      currentImageIndex === index
+                        ? "border-emerald-600"
+                        : "border-gray-200"
                     }`}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/${image}`}
-                      alt={`${item.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      src={
+                        image
+                          ? image.startsWith("http")
+                            ? image
+                            : `http://localhost:5000/uploads/${image}`
+                          : "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400"
+                      }
+                      alt={item.title}
+                      className="w-full h-full object-cover rounded-md"
                     />
                   </button>
                 ))}
@@ -107,13 +118,19 @@ export const ItemDetailPage = () => {
           {/* Item Details */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{item.title}</h1>
-              <p className="text-gray-600 text-lg leading-relaxed">{item.description}</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                {item.title}
+              </h1>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                {item.description}
+              </p>
             </div>
 
             {/* Item Info */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Item Details</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Item Details
+              </h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <Package className="h-5 w-5 text-gray-400" />
@@ -121,15 +138,25 @@ export const ItemDetailPage = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Tag className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">Category: {item.category}</span>
+                  <span className="text-gray-600">
+                    Category: {item.category}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">Gender: {item.gender?.charAt(0).toUpperCase() + item.gender?.slice(1)}</span>
+                  <span className="text-gray-600">
+                    Gender:{" "}
+                    {item.gender?.charAt(0).toUpperCase() +
+                      item.gender?.slice(1)}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">Age: {item.ageCategory?.charAt(0).toUpperCase() + item.ageCategory?.slice(1)}</span>
+                  <span className="text-gray-600">
+                    Age:{" "}
+                    {item.ageCategory?.charAt(0).toUpperCase() +
+                      item.ageCategory?.slice(1)}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-gray-400" />
@@ -138,7 +165,7 @@ export const ItemDetailPage = () => {
                   </span>
                 </div>
               </div>
-              
+
               {item.tags.length > 0 && (
                 <div className="mt-4">
                   <span className="text-gray-600">Tags: </span>
@@ -158,7 +185,9 @@ export const ItemDetailPage = () => {
 
             {/* Owner Info */}
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Listed by</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Listed by
+              </h2>
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
                   <User className="h-6 w-6 text-emerald-600" />
@@ -191,7 +220,11 @@ export const ItemDetailPage = () => {
             {!user && (
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                 <p className="text-yellow-800">
-                  Please <a href="/login" className="font-medium underline">sign in</a> to request swaps or redeem items.
+                  Please{" "}
+                  <a href="/login" className="font-medium underline">
+                    sign in
+                  </a>{" "}
+                  to request swaps or redeem items.
                 </p>
               </div>
             )}
@@ -200,7 +233,9 @@ export const ItemDetailPage = () => {
 
         {/* Similar Items */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Similar Items</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Similar Items
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Similar items would be rendered here */}
           </div>
