@@ -11,12 +11,22 @@ export const ItemDetailPage = () => {
   const [item, setItem] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [userItems, setUserItems] = useState([]);
+  const [showSwapModal, setShowSwapModal] = useState(false);
+  const [selectedOfferedItem, setSelectedOfferedItem] = useState('');
+  const [swapMessage, setSwapMessage] = useState('');
 
   useEffect(() => {
     if (id) {
       fetchItem();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserItems();
+    }
+  }, [user]);
 
   const fetchItem = async () => {
     try {
@@ -29,9 +39,62 @@ export const ItemDetailPage = () => {
     }
   };
 
+  const fetchUserItems = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/user/profile', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      // Filter out items that are not approved or already swapped
+      const availableItems = response.data.items.filter(
+        item => item.status === 'approved' && item._id !== id
+      );
+      setUserItems(availableItems);
+    } catch (error) {
+      console.error('Error fetching user items:', error);
+    }
+  };
+
   const handleRequestSwap = () => {
-    // In a real app, this would open a swap request modal
-    alert('Swap request functionality would be implemented here');
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    
+    if (userItems.length === 0) {
+      alert('You need to have approved items to offer for swap. Please add some items first.');
+      return;
+    }
+    
+    setShowSwapModal(true);
+  };
+
+  const handleSubmitSwapRequest = async () => {
+    if (!selectedOfferedItem) {
+      alert('Please select an item to offer for swap');
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:5000/api/swaps/request',
+        {
+          requestedItemId: id,
+          offeredItemId: selectedOfferedItem,
+          message: swapMessage
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+
+      setShowSwapModal(false);
+      setSelectedOfferedItem('');
+      setSwapMessage('');
+      alert('Swap request sent successfully!');
+      navigate('/swaps');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to send swap request');
+    }
   };
 
   const handleRedeemPoints = () => {
@@ -139,7 +202,7 @@ export const ItemDetailPage = () => {
                 </div>
               </div>
               
-              {item.tags.length > 0 && (
+              {item.tags && item.tags.length > 0 && (
                 <div className="mt-4">
                   <span className="text-gray-600">Tags: </span>
                   <div className="flex flex-wrap gap-2 mt-2">
@@ -179,19 +242,21 @@ export const ItemDetailPage = () => {
                 >
                   Request Swap
                 </button>
-                <button
-                  onClick={handleRedeemPoints}
-                  className="w-full bg-white text-emerald-600 border-2 border-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition-colors"
-                >
-                  Redeem for {item.pointValue} Points
-                </button>
+                {item.pointValue && (
+                  <button
+                    onClick={handleRedeemPoints}
+                    className="w-full bg-white text-emerald-600 border-2 border-emerald-600 px-6 py-3 rounded-lg font-semibold hover:bg-emerald-50 transition-colors"
+                  >
+                    Redeem for {item.pointValue} Points
+                  </button>
+                )}
               </div>
             )}
 
             {!user && (
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                 <p className="text-yellow-800">
-                  Please <a href="/login" className="font-medium underline">sign in</a> to request swaps or redeem items.
+                  Please <button onClick={() => navigate('/login')} className="font-medium underline">sign in</button> to request swaps or redeem items.
                 </p>
               </div>
             )}
@@ -206,6 +271,63 @@ export const ItemDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Swap Request Modal */}
+      {showSwapModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Request Swap</h2>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select an item to offer:
+                </label>
+                <select
+                  value={selectedOfferedItem}
+                  onChange={(e) => setSelectedOfferedItem(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                >
+                  <option value="">Choose an item...</option>
+                  {userItems.map((userItem) => (
+                    <option key={userItem._id} value={userItem._id}>
+                      {userItem.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Message (optional):
+                </label>
+                <textarea
+                  value={swapMessage}
+                  onChange={(e) => setSwapMessage(e.target.value)}
+                  placeholder="Add a message for the item owner..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  rows={3}
+                />
+              </div>
+
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setShowSwapModal(false)}
+                  className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-md font-medium hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitSwapRequest}
+                  className="flex-1 bg-emerald-600 text-white px-4 py-2 rounded-md font-medium hover:bg-emerald-700 transition-colors"
+                >
+                  Send Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -12,6 +12,7 @@ import { AddItemPage } from './pages/AddItemPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { DonatePage } from './pages/DonatePage';
 import { AdminPage } from './pages/AdminPage';
+import SwapRequestPage  from './pages/SwapRequestsPage';
 
 function App() {
   return (
@@ -54,6 +55,14 @@ function App() {
               element={
                 <ProtectedRoute adminOnly>
                   <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/swaps"
+              element={
+                <ProtectedRoute>
+                  <SwapRequestPage />
                 </ProtectedRoute>
               }
             />
