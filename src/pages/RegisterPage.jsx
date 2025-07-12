@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shirt, Mail, Lock, User } from 'lucide-react';
 
-export const RegisterPage: React.FC = () => {
+export const RegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,7 +13,7 @@ export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -32,7 +32,7 @@ export const RegisterPage: React.FC = () => {
     try {
       await register(name, email, password);
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
       setIsLoading(false);

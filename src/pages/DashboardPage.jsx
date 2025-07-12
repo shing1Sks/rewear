@@ -4,21 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { User, Award, Package, Heart, Plus, Eye } from 'lucide-react';
 
-interface UserData {
-  user: {
-    _id: string;
-    name: string;
-    email: string;
-    points: number;
-    badges: string[];
-  };
-  items: any[];
-  donations: any[];
-}
-
-export const DashboardPage: React.FC = () => {
+export const DashboardPage = () => {
   const { user } = useAuth();
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 

@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Upload, X, Plus } from 'lucide-react';
 
-export const AddItemPage: React.FC = () => {
+export const AddItemPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -15,8 +15,8 @@ export const AddItemPage: React.FC = () => {
     condition: '',
     tags: ''
   });
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,14 +24,14 @@ export const AddItemPage: React.FC = () => {
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const conditions = ['New', 'Like New', 'Good', 'Fair'];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
     
     if (images.length + files.length > 5) {
@@ -47,7 +47,7 @@ export const AddItemPage: React.FC = () => {
     setImagePreviews([...imagePreviews, ...newPreviews]);
   };
 
-  const removeImage = (index: number) => {
+  const removeImage = (index) => {
     const newImages = images.filter((_, i) => i !== index);
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
     
@@ -55,7 +55,7 @@ export const AddItemPage: React.FC = () => {
     setImagePreviews(newPreviews);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
@@ -92,7 +92,7 @@ export const AddItemPage: React.FC = () => {
       });
 
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to add item');
     } finally {
       setIsLoading(false);

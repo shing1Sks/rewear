@@ -4,30 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { ArrowLeft, User, Calendar, Tag, Package, Star } from 'lucide-react';
 
-interface Item {
-  _id: string;
-  title: string;
-  description: string;
-  size: string;
-  category: string;
-  condition: string;
-  tags: string[];
-  images: string[];
-  owner: {
-    _id: string;
-    name: string;
-    avatar: string;
-  };
-  pointValue: number;
-  status: string;
-  createdAt: string;
-}
-
-export const ItemDetailPage: React.FC = () => {
+export const ItemDetailPage = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [item, setItem] = useState<Item | null>(null);
+  const [item, setItem] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 

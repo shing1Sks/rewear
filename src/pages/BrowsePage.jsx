@@ -3,24 +3,11 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Filter, Grid, List, Search } from 'lucide-react';
 
-interface Item {
-  _id: string;
-  title: string;
-  description: string;
-  size: string;
-  category: string;
-  condition: string;
-  images: string[];
-  owner: { name: string };
-  pointValue: number;
-  createdAt: string;
-}
-
-export const BrowsePage: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+export const BrowsePage = () => {
+  const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState('grid');
   const [filters, setFilters] = useState({
     category: '',
     size: '',
@@ -70,7 +57,7 @@ export const BrowsePage: React.FC = () => {
     setFilteredItems(filtered);
   };
 
-  const handleFilterChange = (key: string, value: string) => {
+  const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
 

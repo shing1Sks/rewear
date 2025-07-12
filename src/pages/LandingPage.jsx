@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Recycle, Heart, Users, ArrowRight, Shirt, Award, Globe } from 'lucide-react';
 
-export const LandingPage: React.FC = () => {
+export const LandingPage = () => {
   const { user } = useAuth();
 
   return (

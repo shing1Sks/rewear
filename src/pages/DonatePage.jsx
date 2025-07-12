@@ -27,7 +27,7 @@ const NGOs = [
   }
 ];
 
-export const DonatePage: React.FC = () => {
+export const DonatePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -36,22 +36,22 @@ export const DonatePage: React.FC = () => {
     category: '',
     ngo: ''
   });
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const categories = ['Shirts', 'Pants', 'Dresses', 'Jackets', 'Shoes', 'Accessories'];
   const conditions = ['New', 'Like New', 'Good', 'Fair'];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setImage(file);
@@ -64,7 +64,7 @@ export const DonatePage: React.FC = () => {
     setImagePreview('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
@@ -96,7 +96,7 @@ export const DonatePage: React.FC = () => {
       });
 
       navigate('/dashboard');
-    } catch (err: any) {
+    } catch (err) {
       setError(err.response?.data?.message || 'Failed to submit donation');
     } finally {
       setIsLoading(false);

@@ -3,32 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { Shield, Package, Heart, Check, X, Eye } from 'lucide-react';
 
-interface PendingItem {
-  _id: string;
-  title: string;
-  description: string;
-  category: string;
-  condition: string;
-  images: string[];
-  owner: { name: string };
-  createdAt: string;
-}
-
-interface PendingDonation {
-  _id: string;
-  title: string;
-  category: string;
-  condition: string;
-  image: string;
-  ngo: string;
-  donor: { name: string };
-  createdAt: string;
-}
-
-export const AdminPage: React.FC = () => {
+export const AdminPage = () => {
   const { user } = useAuth();
-  const [pendingItems, setPendingItems] = useState<PendingItem[]>([]);
-  const [pendingDonations, setPendingDonations] = useState<PendingDonation[]>([]);
+  const [pendingItems, setPendingItems] = useState([]);
+  const [pendingDonations, setPendingDonations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('items');
 
@@ -59,7 +37,7 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  const handleItemAction = async (itemId: string, status: 'approved' | 'rejected') => {
+  const handleItemAction = async (itemId, status) => {
     try {
       await axios.patch(`http://localhost:5000/api/admin/items/${itemId}`, { status });
       setPendingItems(items => items.filter(item => item._id !== itemId));
@@ -68,7 +46,7 @@ export const AdminPage: React.FC = () => {
     }
   };
 
-  const handleDonationAction = async (donationId: string, status: 'approved' | 'rejected') => {
+  const handleDonationAction = async (donationId, status) => {
     try {
       await axios.patch(`http://localhost:5000/api/admin/donations/${donationId}`, { status });
       setPendingDonations(donations => donations.filter(donation => donation._id !== donationId));
