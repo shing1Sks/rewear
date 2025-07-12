@@ -85,14 +85,14 @@ export const BrowsePage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-pink-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -105,7 +105,7 @@ export const BrowsePage = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-lg mb-8">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex-1 min-w-0">
               <div className="relative">
@@ -113,7 +113,7 @@ export const BrowsePage = () => {
                 <input
                   type="text"
                   placeholder="Search items..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-pink-500 focus:border-purple-400"
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
                 />
@@ -121,7 +121,7 @@ export const BrowsePage = () => {
             </div>
 
             <select
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-pink-500 focus:border-purple-400"
               value={filters.category}
               onChange={(e) => handleFilterChange("category", e.target.value)}
             >
@@ -134,7 +134,7 @@ export const BrowsePage = () => {
             </select>
 
             <select
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-pink-500 focus:border-purple-400"
               value={filters.gender}
               onChange={(e) => handleFilterChange("gender", e.target.value)}
             >
@@ -147,7 +147,7 @@ export const BrowsePage = () => {
             </select>
 
             <select
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-pink-500 focus:border-purple-400"
               value={filters.ageCategory}
               onChange={(e) =>
                 handleFilterChange("ageCategory", e.target.value)
@@ -162,7 +162,7 @@ export const BrowsePage = () => {
             </select>
 
             <select
-              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-pink-500 focus:border-purple-400"
               value={filters.size}
               onChange={(e) => handleFilterChange("size", e.target.value)}
             >
@@ -262,8 +262,8 @@ export const BrowsePage = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">by {item.owner.name}</span>
                     <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-emerald-600" />
-                      <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">
+                      <Users className="h-4 w-4 text-purple-600" />
+                      <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full text-xs">
                         {item.gender} - {item.ageCategory}
                       </span>
                     </div>

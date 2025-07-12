@@ -2,28 +2,64 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { User, Award, Package, Heart, Plus, Eye } from 'lucide-react';
+import { User, Award, Package, Heart, Plus, Eye, MessageCircle, Check, X, Clock, ArrowRight } from 'lucide-react';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
   const [userData, setUserData] = useState(null);
+  const [swapRequests, setSwapRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     if (user) {
       fetchUserData();
+      fetchSwapRequests();
     }
   }, [user]);
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/profile');
+      const response = await axios.get('http://localhost:5000/api/user/profile', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setUserData(response.data);
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchSwapRequests = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/swaps/received', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setSwapRequests(response.data);
+    } catch (error) {
+      console.error('Error fetching swap requests:', error);
+    }
+  };
+
+  const handleSwapResponse = async (swapId, action) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/swaps/${swapId}/respond`,
+        { status: action },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        }
+      );
+      
+      // Refresh swap requests after action
+      fetchSwapRequests();
+      
+      // Show success message
+      alert(`Swap request ${action === 'accepted' ? 'accepted' : 'declined'} successfully!`);
+    } catch (error) {
+      console.error('Error responding to swap request:', error);
+      alert('Failed to respond to swap request');
     }
   };
 
@@ -46,6 +82,7 @@ export const DashboardPage = () => {
   const pendingItems = userData.items.filter(item => item.status === 'pending');
   const approvedItems = userData.items.filter(item => item.status === 'approved');
   const swappedItems = userData.items.filter(item => item.status === 'swapped');
+  const pendingRequests = swapRequests.filter(request => request.status === 'pending');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,6 +109,12 @@ export const DashboardPage = () => {
                   <Heart className="h-5 w-5 text-red-600" />
                   <span className="text-gray-600">{userData.donations.length} donations</span>
                 </div>
+                {pendingRequests.length > 0 && (
+                  <div className="flex items-center space-x-2">
+                    <MessageCircle className="h-5 w-5 text-orange-600" />
+                    <span className="text-orange-600 font-semibold">{pendingRequests.length} new requests</span>
+                  </div>
+                )}
               </div>
             </div>
             <div className="space-y-2">
@@ -94,7 +137,7 @@ export const DashboardPage = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="flex items-center justify-between">
               <div>
@@ -134,6 +177,16 @@ export const DashboardPage = () => {
               <Heart className="h-8 w-8 text-red-600" />
             </div>
           </div>
+
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Swap Requests</p>
+                <p className="text-2xl font-bold text-orange-600">{pendingRequests.length}</p>
+              </div>
+              <MessageCircle className="h-8 w-8 text-orange-600" />
+            </div>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -143,19 +196,25 @@ export const DashboardPage = () => {
               {[
                 { id: 'overview', name: 'Overview' },
                 { id: 'items', name: 'My Items' },
+                { id: 'swap-requests', name: `Swap Requests${pendingRequests.length > 0 ? ` (${pendingRequests.length})` : ''}` },
                 { id: 'donations', name: 'My Donations' },
                 { id: 'badges', name: 'Badges' }
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-1 border-b-2 font-medium text-sm relative ${
                     activeTab === tab.id
                       ? 'border-emerald-500 text-emerald-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   {tab.name}
+                  {tab.id === 'swap-requests' && pendingRequests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {pendingRequests.length}
+                    </span>
+                  )}
                 </button>
               ))}
             </nav>
@@ -164,6 +223,26 @@ export const DashboardPage = () => {
           <div className="p-6">
             {activeTab === 'overview' && (
               <div className="space-y-6">
+                {/* Quick Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-orange-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-orange-800 mb-2">Pending Requests</h4>
+                    <p className="text-2xl font-bold text-orange-600">{pendingRequests.length}</p>
+                    <p className="text-sm text-orange-700">Awaiting your response</p>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-2">Active Listings</h4>
+                    <p className="text-2xl font-bold text-blue-600">{approvedItems.length}</p>
+                    <p className="text-sm text-blue-700">Items available for swap</p>
+                  </div>
+                  <div className="bg-green-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-green-800 mb-2">Successful Swaps</h4>
+                    <p className="text-2xl font-bold text-green-600">{swappedItems.length}</p>
+                    <p className="text-sm text-green-700">Completed exchanges</p>
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
                   <div className="space-y-3">
@@ -250,6 +329,139 @@ export const DashboardPage = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'swap-requests' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">Swap Requests</h3>
+                  <div className="text-sm text-gray-600">
+                    {pendingRequests.length} pending • {swapRequests.filter(r => r.status !== 'pending').length} processed
+                  </div>
+                </div>
+                
+                {swapRequests.length === 0 ? (
+                  <div className="text-center py-12">
+                    <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg">No swap requests yet</p>
+                    <p className="text-gray-400">When someone wants to swap with your items, their requests will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* Pending Requests */}
+                    {pendingRequests.length > 0 && (
+                      <div className="mb-8">
+                        <h4 className="font-medium text-gray-900 mb-4 flex items-center">
+                          <Clock className="h-5 w-5 text-orange-500 mr-2" />
+                          Pending Requests ({pendingRequests.length})
+                        </h4>
+                        <div className="space-y-4">
+                          {pendingRequests.map((request) => (
+                            <div key={request._id} className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                              <div className="flex items-start space-x-4">
+                                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                  <User className="h-6 w-6 text-orange-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h5 className="font-semibold text-gray-900">{request.requester.name}</h5>
+                                    <span className="text-sm text-gray-500">
+                                      {new Date(request.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div className="bg-white p-3 rounded-lg">
+                                      <p className="text-sm font-medium text-gray-700 mb-1">Wants your item:</p>
+                                      <p className="font-semibold text-gray-900">{request.requestedItem.title}</p>
+                                      <p className="text-sm text-gray-600">{request.requestedItem.category} • Size {request.requestedItem.size}</p>
+                                    </div>
+                                    <div className="bg-white p-3 rounded-lg">
+                                      <p className="text-sm font-medium text-gray-700 mb-1">Offers in return:</p>
+                                      <p className="font-semibold text-gray-900">{request.offeredItem.title}</p>
+                                      <p className="text-sm text-gray-600">{request.offeredItem.category} • Size {request.offeredItem.size}</p>
+                                    </div>
+                                  </div>
+                                  
+                                  {request.message && (
+                                    <div className="bg-white p-3 rounded-lg mb-4">
+                                      <p className="text-sm font-medium text-gray-700 mb-1">Message:</p>
+                                      <p className="text-gray-900">{request.message}</p>
+                                    </div>
+                                  )}
+                                  
+                                  <div className="flex space-x-3">
+                                    <button
+                                      onClick={() => handleSwapResponse(request._id, 'accepted')}
+                                      className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center"
+                                    >
+                                      <Check className="h-4 w-4 mr-2" />
+                                      Accept Swap
+                                    </button>
+                                    <button
+                                      onClick={() => handleSwapResponse(request._id, 'declined')}
+                                      className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center"
+                                    >
+                                      <X className="h-4 w-4 mr-2" />
+                                      Decline
+                                    </button>
+                                    <Link
+                                      to={`/items/${request.offeredItem._id}`}
+                                      className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-200 transition-colors flex items-center"
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      View Offered Item
+                                    </Link>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Processed Requests */}
+                    {swapRequests.filter(r => r.status !== 'pending').length > 0 && (
+                      <div>
+                        <h4 className="font-medium text-gray-900 mb-4">Request History</h4>
+                        <div className="space-y-4">
+                          {swapRequests
+                            .filter(r => r.status !== 'pending')
+                            .map((request) => (
+                              <div key={request._id} className={`border rounded-lg p-4 ${
+                                request.status === 'accepted' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                      request.status === 'accepted' ? 'bg-green-100' : 'bg-red-100'
+                                    }`}>
+                                      {request.status === 'accepted' ? (
+                                        <Check className="h-4 w-4 text-green-600" />
+                                      ) : (
+                                        <X className="h-4 w-4 text-red-600" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="font-medium text-gray-900">
+                                        {request.requester.name} • {request.requestedItem.title}
+                                      </p>
+                                      <p className="text-sm text-gray-600">
+                                        {request.status === 'accepted' ? 'Swap accepted' : 'Swap declined'} • {new Date(request.updatedAt).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <ArrowRight className="h-5 w-5 text-gray-400" />
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
