@@ -27,24 +27,17 @@ export const AddItemPage = () => {
   const ageCategories = ['adult', 'teen', 'child'];
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files || []);
-    
     if (images.length + files.length > 5) {
       setError('You can upload maximum 5 images');
       return;
     }
-
     const newImages = [...images, ...files];
     setImages(newImages);
-
-    // Create previews
     const newPreviews = files.map(file => URL.createObjectURL(file));
     setImagePreviews([...imagePreviews, ...newPreviews]);
   };
@@ -52,7 +45,6 @@ export const AddItemPage = () => {
   const removeImage = (index) => {
     const newImages = images.filter((_, i) => i !== index);
     const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    
     setImages(newImages);
     setImagePreviews(newPreviews);
   };
@@ -76,22 +68,11 @@ export const AddItemPage = () => {
 
     try {
       const submitData = new FormData();
-      submitData.append('title', formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('size', formData.size);
-      submitData.append('category', formData.category);
-      submitData.append('gender', formData.gender);
-      submitData.append('ageCategory', formData.ageCategory);
-      submitData.append('tags', formData.tags);
-
-      images.forEach(image => {
-        submitData.append('images', image);
-      });
+      Object.entries(formData).forEach(([key, value]) => submitData.append(key, value));
+      images.forEach(image => submitData.append('images', image));
 
       await axios.post('http://localhost:5000/api/items', submitData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       navigate('/dashboard');
@@ -104,20 +85,20 @@ export const AddItemPage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500 text-lg">Please login to add items</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+        <p className="text-gray-600 text-lg">Please login to add items</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Item</h1>
-          
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-8">
+          <h1 className="text-3xl font-bold text-purple-700 mb-6">Add New Item</h1>
+
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+            <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-md mb-6">
               {error}
             </div>
           )}
@@ -125,18 +106,13 @@ export const AddItemPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-purple-700 mb-2">
                 Images (up to 5)
               </label>
-              
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
                 {imagePreviews.map((preview, index) => (
                   <div key={index} className="relative">
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-32 object-cover rounded-md border"
-                    />
+                    <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-32 object-cover rounded-md border" />
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
@@ -146,12 +122,11 @@ export const AddItemPage = () => {
                     </button>
                   </div>
                 ))}
-                
                 {images.length < 5 && (
-                  <label className="border-2 border-dashed border-gray-300 rounded-md h-32 flex items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors">
+                  <label className="border-2 border-dashed border-purple-300 rounded-md h-32 flex items-center justify-center cursor-pointer hover:border-pink-500 transition-colors">
                     <div className="text-center">
-                      <Plus className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                      <span className="text-sm text-gray-500">Add Image</span>
+                      <Plus className="h-8 w-8 text-purple-400 mx-auto mb-2" />
+                      <span className="text-sm text-purple-500">Add Image</span>
                     </div>
                     <input
                       type="file"
@@ -167,7 +142,7 @@ export const AddItemPage = () => {
 
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="title" className="block text-sm font-medium text-purple-700 mb-2">
                 Title *
               </label>
               <input
@@ -175,7 +150,7 @@ export const AddItemPage = () => {
                 id="title"
                 name="title"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                 value={formData.title}
                 onChange={handleInputChange}
                 placeholder="e.g., Vintage Denim Jacket"
@@ -184,7 +159,7 @@ export const AddItemPage = () => {
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-purple-700 mb-2">
                 Description *
               </label>
               <textarea
@@ -192,7 +167,7 @@ export const AddItemPage = () => {
                 name="description"
                 required
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                 value={formData.description}
                 onChange={handleInputChange}
                 placeholder="Describe your item in detail..."
@@ -202,40 +177,31 @@ export const AddItemPage = () => {
             {/* Size and Category */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="size" className="block text-sm font-medium text-gray-700 mb-2">
-                  Size *
-                </label>
+                <label htmlFor="size" className="block text-sm font-medium text-purple-700 mb-2">Size *</label>
                 <select
                   id="size"
                   name="size"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                   value={formData.size}
                   onChange={handleInputChange}
                 >
                   <option value="">Select size</option>
-                  {sizes.map(size => (
-                    <option key={size} value={size}>{size}</option>
-                  ))}
+                  {sizes.map(size => <option key={size} value={size}>{size}</option>)}
                 </select>
               </div>
-
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                  Category *
-                </label>
+                <label htmlFor="category" className="block text-sm font-medium text-purple-700 mb-2">Category *</label>
                 <select
                   id="category"
                   name="category"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                   value={formData.category}
                   onChange={handleInputChange}
                 >
                   <option value="">Select category</option>
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
+                  {categories.map(category => <option key={category} value={category}>{category}</option>)}
                 </select>
               </div>
             </div>
@@ -243,64 +209,54 @@ export const AddItemPage = () => {
             {/* Gender and Age Category */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
-                  Gender *
-                </label>
+                <label htmlFor="gender" className="block text-sm font-medium text-purple-700 mb-2">Gender *</label>
                 <select
                   id="gender"
                   name="gender"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                   value={formData.gender}
                   onChange={handleInputChange}
                 >
                   <option value="">Select gender</option>
-                  {genders.map(gender => (
-                    <option key={gender} value={gender}>{gender.charAt(0).toUpperCase() + gender.slice(1)}</option>
-                  ))}
+                  {genders.map(g => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
                 </select>
               </div>
-
               <div>
-                <label htmlFor="ageCategory" className="block text-sm font-medium text-gray-700 mb-2">
-                  Age Category *
-                </label>
+                <label htmlFor="ageCategory" className="block text-sm font-medium text-purple-700 mb-2">Age Category *</label>
                 <select
                   id="ageCategory"
                   name="ageCategory"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                   value={formData.ageCategory}
                   onChange={handleInputChange}
                 >
                   <option value="">Select age category</option>
-                  {ageCategories.map(category => (
-                    <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>
-                  ))}
+                  {ageCategories.map(category => <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>)}
                 </select>
               </div>
             </div>
 
             {/* Tags */}
             <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                Tags (comma separated)
-              </label>
+              <label htmlFor="tags" className="block text-sm font-medium text-purple-700 mb-2">Tags</label>
               <input
                 type="text"
                 id="tags"
                 name="tags"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-purple-200 rounded-md focus:ring-pink-500 focus:border-pink-500"
                 value={formData.tags}
                 onChange={handleInputChange}
                 placeholder="e.g., vintage, casual, summer"
               />
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md font-medium hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-md font-medium hover:from-purple-700 hover:to-pink-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Adding Item...' : 'Add Item'}
             </button>
