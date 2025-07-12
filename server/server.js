@@ -31,6 +31,14 @@ const userSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
   badges: [String],
   isAdmin: { type: Boolean, default: false },
+  address: {
+    street: String,
+    city: String,
+    state: String,
+    zipCode: String,
+    country: { type: String, default: 'India' }
+  },
+  phone: String,
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -53,6 +61,45 @@ const itemSchema = new mongoose.Schema({
 });
 
 const Item = mongoose.model('Item', itemSchema);
+
+// Swap Request Schema
+const swapRequestSchema = new mongoose.Schema({
+  requester: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  requestedItem: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+  offeredItem: { type: mongoose.Schema.Types.ObjectId, ref: 'Item', required: true },
+  status: { 
+    type: String, 
+    enum: ['pending', 'accepted', 'rejected', 'courier_selected', 'items_shipped', 'completed', 'cancelled'], 
+    default: 'pending' 
+  },
+  message: String,
+  courierService: {
+    name: String,
+    cost: Number,
+    estimatedDelivery: String,
+    trackingId: String
+  },
+  shippingDetails: {
+    requesterAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String
+    },
+    ownerAddress: {
+      street: String,
+      city: String,
+      state: String,
+      zipCode: String,
+      country: String
+    }
+  },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
+const SwapRequest = mongoose.model('SwapRequest', swapRequestSchema);
 
 // Donation Schema
 const donationSchema = new mongoose.Schema({
@@ -95,6 +142,30 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+
+// Courier services data
+const courierServices = [
+  { name: 'BlueDart', baseCost: 50, costPerKm: 2, estimatedDays: '2-3' },
+  { name: 'DTDC', baseCost: 40, costPerKm: 1.5, estimatedDays: '3-4' },
+  { name: 'FedEx', baseCost: 80, costPerKm: 3, estimatedDays: '1-2' },
+  { name: 'India Post', baseCost: 25, costPerKm: 1, estimatedDays: '5-7' },
+  { name: 'Delhivery', baseCost: 45, costPerKm: 1.8, estimatedDays: '2-4' }
+];
+
+// Helper function to calculate distance (mock implementation)
+const calculateDistance = (addr1, addr2) => {
+  // In real implementation, you would use Google Maps API or similar
+  return Math.floor(Math.random() * 50) + 10; // Random distance between 10-60 km
+};
+
+// Helper function to calculate courier costs
+const calculateCourierCosts = (distance) => {
+  return courierServices.map(service => ({
+    ...service,
+    totalCost: service.baseCost + (distance * service.costPerKm),
+    distance: distance
+  }));
+};
 
 // Auth routes
 app.post('/api/auth/register', async (req, res) => {
@@ -168,7 +239,7 @@ app.get('/api/items/:id', async (req, res) => {
 
 app.post('/api/items', authenticateToken, upload.array('images', 5), async (req, res) => {
   try {
-    const { title, description, size, category, condition, tags } = req.body;
+    const { title, description, size, category, gender, ageCategory, tags } = req.body;
     const images = req.files.map(file => file.filename);
     
     const item = new Item({
@@ -176,7 +247,8 @@ app.post('/api/items', authenticateToken, upload.array('images', 5), async (req,
       description,
       size,
       category,
-      condition,
+      gender,
+      ageCategory,
       tags: tags ? tags.split(',') : [],
       images,
       owner: req.user.userId
@@ -193,6 +265,225 @@ app.post('/api/items', authenticateToken, upload.array('images', 5), async (req,
   }
 });
 
+// Swap Request routes
+app.post('/api/swaps/request', authenticateToken, async (req, res) => {
+  try {
+    const { requestedItemId, offeredItemId, message } = req.body;
+    
+    // Validate items exist and are available
+    const requestedItem = await Item.findById(requestedItemId);
+    const offeredItem = await Item.findById(offeredItemId);
+    
+    if (!requestedItem || !offeredItem) {
+      return res.status(404).json({ message: 'Item not found' });
+    }
+    
+    if (requestedItem.status !== 'approved' || offeredItem.status !== 'approved') {
+      return res.status(400).json({ message: 'Items must be approved for swapping' });
+    }
+    
+    if (offeredItem.owner.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'You can only offer your own items' });
+    }
+    
+    // Check if swap request already exists
+    const existingRequest = await SwapRequest.findOne({
+      requester: req.user.userId,
+      requestedItem: requestedItemId,
+      offeredItem: offeredItemId,
+      status: { $in: ['pending', 'accepted', 'courier_selected', 'items_shipped'] }
+    });
+    
+    if (existingRequest) {
+      return res.status(400).json({ message: 'Swap request already exists' });
+    }
+    
+    const swapRequest = new SwapRequest({
+      requester: req.user.userId,
+      requestedItem: requestedItemId,
+      offeredItem: offeredItemId,
+      message
+    });
+    
+    await swapRequest.save();
+    
+    const populatedRequest = await SwapRequest.findById(swapRequest._id)
+      .populate('requester', 'name email')
+      .populate('requestedItem', 'title images')
+      .populate('offeredItem', 'title images');
+    
+    res.json(populatedRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/swaps/received', authenticateToken, async (req, res) => {
+  try {
+    const userItems = await Item.find({ owner: req.user.userId });
+    const itemIds = userItems.map(item => item._id);
+    
+    const swapRequests = await SwapRequest.find({
+      requestedItem: { $in: itemIds }
+    })
+    .populate('requester', 'name email')
+    .populate('requestedItem', 'title images')
+    .populate('offeredItem', 'title images')
+    .sort('-createdAt');
+    
+    res.json(swapRequests);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/swaps/sent', authenticateToken, async (req, res) => {
+  try {
+    const swapRequests = await SwapRequest.find({ requester: req.user.userId })
+      .populate('requestedItem', 'title images owner')
+      .populate('offeredItem', 'title images')
+      .sort('-createdAt');
+    
+    res.json(swapRequests);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.patch('/api/swaps/:id/respond', authenticateToken, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const swapRequest = await SwapRequest.findById(req.params.id)
+      .populate('requestedItem')
+      .populate('offeredItem');
+    
+    if (!swapRequest) {
+      return res.status(404).json({ message: 'Swap request not found' });
+    }
+    
+    // Only item owner can respond
+    if (swapRequest.requestedItem.owner.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+    
+    swapRequest.status = status;
+    swapRequest.updatedAt = new Date();
+    await swapRequest.save();
+    
+    res.json(swapRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/swaps/:id/courier-options', authenticateToken, async (req, res) => {
+  try {
+    const swapRequest = await SwapRequest.findById(req.params.id)
+      .populate('requester', 'address')
+      .populate('requestedItem', 'owner')
+      .populate({ path: 'requestedItem', populate: { path: 'owner', select: 'address' } });
+    
+    if (!swapRequest) {
+      return res.status(404).json({ message: 'Swap request not found' });
+    }
+    
+    // Mock addresses if not provided
+    const requesterAddr = swapRequest.requester.address || {
+      city: 'Bhubaneswar',
+      state: 'Odisha',
+      zipCode: '751001'
+    };
+    
+    const ownerAddr = swapRequest.requestedItem.owner.address || {
+      city: 'Cuttack',
+      state: 'Odisha',
+      zipCode: '753001'
+    };
+    
+    const distance = calculateDistance(requesterAddr, ownerAddr);
+    const courierOptions = calculateCourierCosts(distance);
+    
+    res.json({
+      distance,
+      courierOptions,
+      addresses: {
+        requester: requesterAddr,
+        owner: ownerAddr
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.patch('/api/swaps/:id/select-courier', authenticateToken, async (req, res) => {
+  try {
+    const { courierService, shippingDetails } = req.body;
+    
+    const swapRequest = await SwapRequest.findById(req.params.id);
+    if (!swapRequest) {
+      return res.status(404).json({ message: 'Swap request not found' });
+    }
+    
+    swapRequest.courierService = courierService;
+    swapRequest.shippingDetails = shippingDetails;
+    swapRequest.status = 'courier_selected';
+    swapRequest.updatedAt = new Date();
+    
+    await swapRequest.save();
+    
+    res.json(swapRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.patch('/api/swaps/:id/ship', authenticateToken, async (req, res) => {
+  try {
+    const { trackingId } = req.body;
+    
+    const swapRequest = await SwapRequest.findById(req.params.id);
+    if (!swapRequest) {
+      return res.status(404).json({ message: 'Swap request not found' });
+    }
+    
+    swapRequest.courierService.trackingId = trackingId;
+    swapRequest.status = 'items_shipped';
+    swapRequest.updatedAt = new Date();
+    
+    await swapRequest.save();
+    
+    res.json(swapRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.patch('/api/swaps/:id/complete', authenticateToken, async (req, res) => {
+  try {
+    const swapRequest = await SwapRequest.findById(req.params.id);
+    if (!swapRequest) {
+      return res.status(404).json({ message: 'Swap request not found' });
+    }
+    
+    // Mark items as swapped
+    await Item.findByIdAndUpdate(swapRequest.requestedItem, { status: 'swapped' });
+    await Item.findByIdAndUpdate(swapRequest.offeredItem, { status: 'swapped' });
+    
+    swapRequest.status = 'completed';
+    swapRequest.updatedAt = new Date();
+    await swapRequest.save();
+    
+    // Award points to both users
+    await User.findByIdAndUpdate(swapRequest.requester, { $inc: { points: 10 } });
+    await User.findByIdAndUpdate(swapRequest.requestedItem.owner, { $inc: { points: 10 } });
+    
+    res.json(swapRequest);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // User routes
 app.get('/api/user/profile', authenticateToken, async (req, res) => {
   try {
@@ -201,6 +492,22 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
     const userDonations = await Donation.find({ donor: req.user.userId });
     
     res.json({ user, items: userItems, donations: userDonations });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.patch('/api/user/profile', authenticateToken, async (req, res) => {
+  try {
+    const { name, phone, address } = req.body;
+    
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { name, phone, address },
+      { new: true }
+    ).select('-password');
+    
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -288,6 +595,26 @@ app.patch('/api/admin/donations/:id', authenticateToken, async (req, res) => {
     }
     
     res.json({ message: 'Donation status updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.get('/api/admin/swaps', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user.isAdmin) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    
+    const swapRequests = await SwapRequest.find({})
+      .populate('requester', 'name email')
+      .populate('requestedItem', 'title owner')
+      .populate('offeredItem', 'title')
+      .populate({ path: 'requestedItem', populate: { path: 'owner', select: 'name email' } })
+      .sort('-createdAt');
+    
+    res.json(swapRequests);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
