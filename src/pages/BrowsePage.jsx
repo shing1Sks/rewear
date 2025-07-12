@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Filter, Grid, List, Search } from 'lucide-react';
+import { Filter, Grid, List, Search, Users } from 'lucide-react';
 
 export const BrowsePage = () => {
   const [items, setItems] = useState([]);
@@ -11,11 +11,15 @@ export const BrowsePage = () => {
   const [filters, setFilters] = useState({
     category: '',
     size: '',
+    gender: '',
+    ageCategory: '',
     search: ''
   });
 
   const categories = ['Shirts', 'Pants', 'Dresses', 'Jackets', 'Shoes', 'Accessories'];
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  const genders = ['men', 'women', 'kids'];
+  const ageCategories = ['adult', 'teen', 'child'];
 
   useEffect(() => {
     fetchItems();
@@ -45,6 +49,14 @@ export const BrowsePage = () => {
 
     if (filters.size) {
       filtered = filtered.filter(item => item.size === filters.size);
+    }
+
+    if (filters.gender) {
+      filtered = filtered.filter(item => item.gender === filters.gender);
+    }
+
+    if (filters.ageCategory) {
+      filtered = filtered.filter(item => item.ageCategory === filters.ageCategory);
     }
 
     if (filters.search) {
@@ -102,6 +114,28 @@ export const BrowsePage = () => {
               <option value="">All Categories</option>
               {categories.map(category => (
                 <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+
+            <select
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              value={filters.gender}
+              onChange={(e) => handleFilterChange('gender', e.target.value)}
+            >
+              <option value="">All Genders</option>
+              {genders.map(gender => (
+                <option key={gender} value={gender}>{gender.charAt(0).toUpperCase() + gender.slice(1)}</option>
+              ))}
+            </select>
+
+            <select
+              className="px-4 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+              value={filters.ageCategory}
+              onChange={(e) => handleFilterChange('ageCategory', e.target.value)}
+            >
+              <option value="">All Age Categories</option>
+              {ageCategories.map(category => (
+                <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>
               ))}
             </select>
 
@@ -170,9 +204,12 @@ export const BrowsePage = () => {
                   
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">by {item.owner.name}</span>
-                    <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">
-                      {item.condition}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-emerald-600" />
+                      <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-full text-xs">
+                        {item.gender} - {item.ageCategory}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </Link>

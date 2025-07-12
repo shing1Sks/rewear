@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { ArrowLeft, User, Calendar, Tag, Package, Star } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Tag, Package, Star, Users } from 'lucide-react';
 
 export const ItemDetailPage = () => {
   const { id } = useParams();
@@ -124,8 +124,12 @@ export const ItemDetailPage = () => {
                   <span className="text-gray-600">Category: {item.category}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Star className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">Condition: {item.condition}</span>
+                  <Users className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-600">Gender: {item.gender?.charAt(0).toUpperCase() + item.gender?.slice(1)}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-600">Age: {item.ageCategory?.charAt(0).toUpperCase() + item.ageCategory?.slice(1)}</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-gray-400" />
@@ -198,19 +202,7 @@ export const ItemDetailPage = () => {
         <div className="mt-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Similar Items</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <div className="aspect-square bg-gray-200"></div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-1">Similar Item {i}</h3>
-                  <p className="text-sm text-gray-600">Great condition item</p>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-sm text-gray-500">Size: M</span>
-                    <span className="text-sm font-medium text-emerald-600">10 pts</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+            {/* Similar items would be rendered here */}
           </div>
         </div>
       </div>

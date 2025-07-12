@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { Shield, Package, Heart, Check, X, Eye } from 'lucide-react';
+import { Shield, Package, Heart, Check, X, Eye, Users } from 'lucide-react';
 
 export const AdminPage = () => {
   const { user } = useAuth();
@@ -177,8 +177,16 @@ export const AdminPage = () => {
                                 <span className="ml-2 text-gray-600">{item.category}</span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-700">Condition:</span>
-                                <span className="ml-2 text-gray-600">{item.condition}</span>
+                                <span className="font-medium text-gray-700">Size:</span>
+                                <span className="ml-2 text-gray-600">{item.size}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">Gender:</span>
+                                <span className="ml-2 text-gray-600">{item.gender}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">Age Category:</span>
+                                <span className="ml-2 text-gray-600">{item.ageCategory}</span>
                               </div>
                               <div>
                                 <span className="font-medium text-gray-700">Owner:</span>
@@ -252,8 +260,12 @@ export const AdminPage = () => {
                                 <span className="ml-2 text-gray-600">{donation.category}</span>
                               </div>
                               <div>
-                                <span className="font-medium text-gray-700">Condition:</span>
-                                <span className="ml-2 text-gray-600">{donation.condition}</span>
+                                <span className="font-medium text-gray-700">Gender:</span>
+                                <span className="ml-2 text-gray-600">{donation.gender}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">Age Category:</span>
+                                <span className="ml-2 text-gray-600">{donation.ageCategory}</span>
                               </div>
                               <div>
                                 <span className="font-medium text-gray-700">Donor:</span>

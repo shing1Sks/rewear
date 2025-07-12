@@ -12,7 +12,8 @@ export const AddItemPage = () => {
     description: '',
     size: '',
     category: '',
-    condition: '',
+    gender: '',
+    ageCategory: '',
     tags: ''
   });
   const [images, setImages] = useState([]);
@@ -22,7 +23,8 @@ export const AddItemPage = () => {
 
   const categories = ['Shirts', 'Pants', 'Dresses', 'Jackets', 'Shoes', 'Accessories'];
   const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  const conditions = ['New', 'Like New', 'Good', 'Fair'];
+  const genders = ['men', 'women', 'kids'];
+  const ageCategories = ['adult', 'teen', 'child'];
 
   const handleInputChange = (e) => {
     setFormData({
@@ -60,7 +62,7 @@ export const AddItemPage = () => {
     setError('');
     setIsLoading(true);
 
-    if (!formData.title || !formData.description || !formData.size || !formData.category || !formData.condition) {
+    if (!formData.title || !formData.description || !formData.size || !formData.category || !formData.gender || !formData.ageCategory) {
       setError('Please fill in all required fields');
       setIsLoading(false);
       return;
@@ -78,7 +80,8 @@ export const AddItemPage = () => {
       submitData.append('description', formData.description);
       submitData.append('size', formData.size);
       submitData.append('category', formData.category);
-      submitData.append('condition', formData.condition);
+      submitData.append('gender', formData.gender);
+      submitData.append('ageCategory', formData.ageCategory);
       submitData.append('tags', formData.tags);
 
       images.forEach(image => {
@@ -237,30 +240,51 @@ export const AddItemPage = () => {
               </div>
             </div>
 
-            {/* Condition */}
-            <div>
-              <label htmlFor="condition" className="block text-sm font-medium text-gray-700 mb-2">
-                Condition *
-              </label>
-              <select
-                id="condition"
-                name="condition"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
-                value={formData.condition}
-                onChange={handleInputChange}
-              >
-                <option value="">Select condition</option>
-                {conditions.map(condition => (
-                  <option key={condition} value={condition}>{condition}</option>
-                ))}
-              </select>
+            {/* Gender and Age Category */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                  Gender *
+                </label>
+                <select
+                  id="gender"
+                  name="gender"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  value={formData.gender}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select gender</option>
+                  {genders.map(gender => (
+                    <option key={gender} value={gender}>{gender.charAt(0).toUpperCase() + gender.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="ageCategory" className="block text-sm font-medium text-gray-700 mb-2">
+                  Age Category *
+                </label>
+                <select
+                  id="ageCategory"
+                  name="ageCategory"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
+                  value={formData.ageCategory}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select age category</option>
+                  {ageCategories.map(category => (
+                    <option key={category} value={category}>{category.charAt(0).toUpperCase() + category.slice(1)}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Tags */}
             <div>
               <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                Tags (optional)
+                Tags (comma separated)
               </label>
               <input
                 type="text"
@@ -269,24 +293,17 @@ export const AddItemPage = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-emerald-500 focus:border-emerald-500"
                 value={formData.tags}
                 onChange={handleInputChange}
-                placeholder="e.g., vintage, summer, casual (comma separated)"
+                placeholder="e.g., vintage, casual, summer"
               />
-              <p className="text-sm text-gray-500 mt-1">Separate tags with commas</p>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-4">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isLoading ? 'Adding Item...' : 'Add Item for Review'}
-              </button>
-              <p className="text-sm text-gray-500 mt-2 text-center">
-                Your item will be reviewed by our team before being published
-              </p>
-            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-emerald-600 text-white py-3 px-4 rounded-md font-medium hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {isLoading ? 'Adding Item...' : 'Add Item'}
+            </button>
           </form>
         </div>
       </div>
