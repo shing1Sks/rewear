@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import axios from 'axios';
-import { ArrowLeft, User, Calendar, Tag, Package, Users } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import axios from "axios";
+import { ArrowLeft, User, Calendar, Tag, Package, Users } from "lucide-react";
 
 export const ItemDetailPage = () => {
   const { id } = useParams();
@@ -13,8 +13,8 @@ export const ItemDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [userItems, setUserItems] = useState([]);
   const [showSwapModal, setShowSwapModal] = useState(false);
-  const [selectedOfferedItem, setSelectedOfferedItem] = useState('');
-  const [swapMessage, setSwapMessage] = useState('');
+  const [selectedOfferedItem, setSelectedOfferedItem] = useState("");
+  const [swapMessage, setSwapMessage] = useState("");
 
   useEffect(() => {
     if (id) fetchItem();
@@ -29,7 +29,7 @@ export const ItemDetailPage = () => {
       const response = await axios.get(`http://localhost:5000/api/items/${id}`);
       setItem(response.data);
     } catch (error) {
-      console.error('Error fetching item:', error);
+      console.error("Error fetching item:", error);
     } finally {
       setIsLoading(false);
     }
@@ -37,22 +37,25 @@ export const ItemDetailPage = () => {
 
   const fetchUserItems = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/user/profile', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const response = await axios.get(
+        "http://localhost:5000/api/user/profile",
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       const availableItems = response.data.items.filter(
-        item => item.status === 'approved' && item._id !== id
+        (item) => item.status === "approved" && item._id !== id
       );
       setUserItems(availableItems);
     } catch (error) {
-      console.error('Error fetching user items:', error);
+      console.error("Error fetching user items:", error);
     }
   };
 
   const handleRequestSwap = () => {
-    if (!user) return navigate('/login');
+    if (!user) return navigate("/login");
     if (userItems.length === 0) {
-      alert('You need approved items to offer. Please add items first.');
+      alert("You need approved items to offer. Please add items first.");
       return;
     }
     setShowSwapModal(true);
@@ -60,35 +63,35 @@ export const ItemDetailPage = () => {
 
   const handleSubmitSwapRequest = async () => {
     if (!selectedOfferedItem) {
-      alert('Please select an item to offer for swap');
+      alert("Please select an item to offer for swap");
       return;
     }
 
     try {
       await axios.post(
-        'http://localhost:5000/api/swaps/request',
+        "http://localhost:5000/api/swaps/request",
         {
           requestedItemId: id,
           offeredItemId: selectedOfferedItem,
-          message: swapMessage
+          message: swapMessage,
         },
         {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
       setShowSwapModal(false);
-      setSelectedOfferedItem('');
-      setSwapMessage('');
-      alert('Swap request sent successfully!');
-      navigate('/swaps');
+      setSelectedOfferedItem("");
+      setSwapMessage("");
+      alert("Swap request sent successfully!");
+      navigate("/swaps");
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to send swap request');
+      alert(error.response?.data?.message || "Failed to send swap request");
     }
   };
 
   const handleRedeemPoints = () => {
-    alert('Point redemption functionality would be implemented here');
+    alert("Point redemption functionality would be implemented here");
   };
 
   if (isLoading) {
@@ -127,11 +130,13 @@ export const ItemDetailPage = () => {
               <img
                 src={
                   item.images[currentImageIndex]
-                    ? `http://localhost:5000/uploads/${item.images[currentImageIndex]}`
-                    : 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=800'
+                    ? item.images[currentImageIndex].startsWith("http")
+                      ? item.images[currentImageIndex]
+                      : `http://localhost:5000/uploads/${item.images[currentImageIndex]}`
+                    : "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400"
                 }
                 alt={item.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover rounded-md"
               />
             </div>
 
@@ -142,13 +147,21 @@ export const ItemDetailPage = () => {
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
                     className={`aspect-square bg-white rounded-md overflow-hidden border-2 ${
-                      currentImageIndex === index ? 'border-pink-500' : 'border-gray-200'
+                      currentImageIndex === index
+                        ? "border-pink-500"
+                        : "border-gray-200"
                     }`}
                   >
                     <img
-                      src={`http://localhost:5000/uploads/${image}`}
-                      alt={`${item.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      src={
+                        image
+                          ? image.startsWith("http")
+                            ? image
+                            : `http://localhost:5000/uploads/${image}`
+                          : "https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400"
+                      }
+                      alt={item.title}
+                      className="w-full h-full object-cover rounded-md"
                     />
                   </button>
                 ))}
@@ -159,12 +172,18 @@ export const ItemDetailPage = () => {
           {/* Item Details */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{item.title}</h1>
-              <p className="text-gray-600 text-lg leading-relaxed">{item.description}</p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                {item.title}
+              </h1>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                {item.description}
+              </p>
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Item Details</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Item Details
+              </h2>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center space-x-2">
                   <Package className="h-5 w-5 text-gray-400" />
@@ -172,18 +191,24 @@ export const ItemDetailPage = () => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Tag className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-600">Category: {item.category}</span>
+                  <span className="text-gray-600">
+                    Category: {item.category}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-gray-400" />
                   <span className="text-gray-600">
-                    Gender: {item.gender?.charAt(0).toUpperCase() + item.gender?.slice(1)}
+                    Gender:{" "}
+                    {item.gender?.charAt(0).toUpperCase() +
+                      item.gender?.slice(1)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-gray-400" />
                   <span className="text-gray-600">
-                    Age: {item.ageCategory?.charAt(0).toUpperCase() + item.ageCategory?.slice(1)}
+                    Age:{" "}
+                    {item.ageCategory?.charAt(0).toUpperCase() +
+                      item.ageCategory?.slice(1)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -212,7 +237,9 @@ export const ItemDetailPage = () => {
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Listed by</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Listed by
+              </h2>
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
                   <User className="h-6 w-6 text-pink-600" />
@@ -246,10 +273,13 @@ export const ItemDetailPage = () => {
             {!user && (
               <div className="bg-pink-50 border border-pink-200 p-4 rounded-lg">
                 <p className="text-pink-800">
-                  Please{' '}
-                  <button onClick={() => navigate('/login')} className="font-medium underline">
+                  Please{" "}
+                  <button
+                    onClick={() => navigate("/login")}
+                    className="font-medium underline"
+                  >
                     sign in
-                  </button>{' '}
+                  </button>{" "}
                   to request swaps or redeem items.
                 </p>
               </div>
@@ -262,7 +292,9 @@ export const ItemDetailPage = () => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Request Swap</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                  Request Swap
+                </h2>
 
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
