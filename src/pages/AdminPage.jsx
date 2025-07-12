@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { Shield, Package, Heart, Check, X, Eye, Users } from 'lucide-react';
+import { Shield, Package, Heart, Check, X } from 'lucide-react';
 
 export const AdminPage = () => {
   const { user } = useAuth();
@@ -66,7 +66,7 @@ export const AdminPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -77,8 +77,8 @@ export const AdminPage = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <Shield className="h-6 w-6 text-purple-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+              <Shield className="h-6 w-6 text-emerald-600" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
@@ -93,9 +93,9 @@ export const AdminPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Pending Items</p>
-                <p className="text-2xl font-bold text-blue-600">{pendingItems.length}</p>
+                <p className="text-2xl font-bold text-sky-600">{pendingItems.length}</p>
               </div>
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package className="h-8 w-8 text-sky-600" />
             </div>
           </div>
           
@@ -103,9 +103,9 @@ export const AdminPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Pending Donations</p>
-                <p className="text-2xl font-bold text-red-600">{pendingDonations.length}</p>
+                <p className="text-2xl font-bold text-rose-600">{pendingDonations.length}</p>
               </div>
-              <Heart className="h-8 w-8 text-red-600" />
+              <Heart className="h-8 w-8 text-rose-600" />
             </div>
           </div>
         </div>
@@ -123,13 +123,13 @@ export const AdminPage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
                     activeTab === tab.id
-                      ? 'border-purple-500 text-purple-600'
+                      ? 'border-sky-500 text-sky-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
                   <span>{tab.name}</span>
                   {tab.count > 0 && (
-                    <span className="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">
+                    <span className="bg-rose-100 text-rose-600 text-xs px-2 py-1 rounded-full">
                       {tab.count}
                     </span>
                   )}
@@ -139,10 +139,10 @@ export const AdminPage = () => {
           </div>
 
           <div className="p-6">
+            {/* Pending Items */}
             {activeTab === 'items' && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Pending Items for Review</h3>
-                
                 {pendingItems.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">No pending items to review</p>
                 ) : (
@@ -150,67 +150,44 @@ export const AdminPage = () => {
                     {pendingItems.map((item) => (
                       <div key={item._id} className="border border-gray-200 rounded-lg p-6">
                         <div className="flex flex-col lg:flex-row lg:space-x-6">
-                          {/* Images */}
                           <div className="lg:w-1/3 mb-4 lg:mb-0">
                             <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                               <img
                                 src={item.images[0] 
                                   ? `http://localhost:5000/uploads/${item.images[0]}`
-                                  : 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400'
-                                }
+                                  : 'https://images.pexels.com/photos/996329/pexels-photo-996329.jpeg?auto=compress&cs=tinysrgb&w=400'}
                                 alt={item.title}
                                 className="w-full h-full object-cover"
                               />
                             </div>
                           </div>
-                          
-                          {/* Details */}
+
                           <div className="lg:w-2/3 space-y-4">
                             <div>
                               <h4 className="text-xl font-semibold text-gray-900">{item.title}</h4>
                               <p className="text-gray-600 mt-1">{item.description}</p>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="font-medium text-gray-700">Category:</span>
-                                <span className="ml-2 text-gray-600">{item.category}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Size:</span>
-                                <span className="ml-2 text-gray-600">{item.size}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Gender:</span>
-                                <span className="ml-2 text-gray-600">{item.gender}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Age Category:</span>
-                                <span className="ml-2 text-gray-600">{item.ageCategory}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Owner:</span>
-                                <span className="ml-2 text-gray-600">{item.owner.name}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Submitted:</span>
-                                <span className="ml-2 text-gray-600">
-                                  {new Date(item.createdAt).toLocaleDateString()}
-                                </span>
-                              </div>
+                              <div><strong className="text-gray-700">Category:</strong> {item.category}</div>
+                              <div><strong className="text-gray-700">Size:</strong> {item.size}</div>
+                              <div><strong className="text-gray-700">Gender:</strong> {item.gender}</div>
+                              <div><strong className="text-gray-700">Age Category:</strong> {item.ageCategory}</div>
+                              <div><strong className="text-gray-700">Owner:</strong> {item.owner.name}</div>
+                              <div><strong className="text-gray-700">Submitted:</strong> {new Date(item.createdAt).toLocaleDateString()}</div>
                             </div>
-                            
+
                             <div className="flex space-x-4 pt-4">
                               <button
                                 onClick={() => handleItemAction(item._id, 'approved')}
-                                className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center space-x-2"
                               >
                                 <Check className="h-4 w-4" />
                                 <span>Approve</span>
                               </button>
                               <button
                                 onClick={() => handleItemAction(item._id, 'rejected')}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center space-x-2"
+                                className="bg-rose-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-rose-700 transition-colors flex items-center space-x-2"
                               >
                                 <X className="h-4 w-4" />
                                 <span>Reject</span>
@@ -225,10 +202,10 @@ export const AdminPage = () => {
               </div>
             )}
 
+            {/* Pending Donations */}
             {activeTab === 'donations' && (
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-6">Pending Donations for Review</h3>
-                
                 {pendingDonations.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">No pending donations to review</p>
                 ) : (
@@ -236,7 +213,6 @@ export const AdminPage = () => {
                     {pendingDonations.map((donation) => (
                       <div key={donation._id} className="border border-gray-200 rounded-lg p-6">
                         <div className="flex flex-col lg:flex-row lg:space-x-6">
-                          {/* Image */}
                           <div className="lg:w-1/3 mb-4 lg:mb-0">
                             <div className="aspect-square bg-gray-200 rounded-lg overflow-hidden">
                               <img
@@ -246,50 +222,32 @@ export const AdminPage = () => {
                               />
                             </div>
                           </div>
-                          
-                          {/* Details */}
+
                           <div className="lg:w-2/3 space-y-4">
                             <div>
                               <h4 className="text-xl font-semibold text-gray-900">{donation.title}</h4>
                               <p className="text-gray-600 mt-1">Donation to {donation.ngo}</p>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="font-medium text-gray-700">Category:</span>
-                                <span className="ml-2 text-gray-600">{donation.category}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Gender:</span>
-                                <span className="ml-2 text-gray-600">{donation.gender}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Age Category:</span>
-                                <span className="ml-2 text-gray-600">{donation.ageCategory}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Donor:</span>
-                                <span className="ml-2 text-gray-600">{donation.donor.name}</span>
-                              </div>
-                              <div>
-                                <span className="font-medium text-gray-700">Submitted:</span>
-                                <span className="ml-2 text-gray-600">
-                                  {new Date(donation.createdAt).toLocaleDateString()}
-                                </span>
-                              </div>
+                              <div><strong className="text-gray-700">Category:</strong> {donation.category}</div>
+                              <div><strong className="text-gray-700">Gender:</strong> {donation.gender}</div>
+                              <div><strong className="text-gray-700">Age Category:</strong> {donation.ageCategory}</div>
+                              <div><strong className="text-gray-700">Donor:</strong> {donation.donor.name}</div>
+                              <div><strong className="text-gray-700">Submitted:</strong> {new Date(donation.createdAt).toLocaleDateString()}</div>
                             </div>
-                            
+
                             <div className="flex space-x-4 pt-4">
                               <button
                                 onClick={() => handleDonationAction(donation._id, 'approved')}
-                                className="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center space-x-2"
+                                className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center space-x-2"
                               >
                                 <Check className="h-4 w-4" />
                                 <span>Approve (+15 pts to donor)</span>
                               </button>
                               <button
                                 onClick={() => handleDonationAction(donation._id, 'rejected')}
-                                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center space-x-2"
+                                className="bg-rose-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-rose-700 transition-colors flex items-center space-x-2"
                               >
                                 <X className="h-4 w-4" />
                                 <span>Reject</span>

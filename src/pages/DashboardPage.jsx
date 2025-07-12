@@ -66,7 +66,7 @@ export const DashboardPage = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
       </div>
     );
   }
@@ -90,23 +90,23 @@ export const DashboardPage = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center space-x-4">
-            <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center">
-              <User className="h-10 w-10 text-emerald-600" />
+            <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
+              <User className="h-10 w-10 text-purple-600" />
             </div>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{userData.user.name}</h1>
               <p className="text-gray-600">{userData.user.email}</p>
               <div className="flex items-center space-x-4 mt-2">
                 <div className="flex items-center space-x-2">
-                  <Award className="h-5 w-5 text-emerald-600" />
-                  <span className="font-semibold text-emerald-600">{userData.user.points} points</span>
+                  <Award className="h-5 w-5 text-purple-600" />
+                  <span className="font-semibold text-purple-600">{userData.user.points} points</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Package className="h-5 w-5 text-blue-600" />
                   <span className="text-gray-600">{userData.items.length} items listed</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Heart className="h-5 w-5 text-red-600" />
+                  <Heart className="h-5 w-5 text-pink-600" />
                   <span className="text-gray-600">{userData.donations.length} donations</span>
                 </div>
                 {pendingRequests.length > 0 && (
@@ -120,14 +120,14 @@ export const DashboardPage = () => {
             <div className="space-y-2">
               <Link
                 to="/add-item"
-                className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-700 transition-colors flex items-center space-x-2"
+                className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors flex items-center space-x-2"
               >
                 <Plus className="h-4 w-4" />
                 <span>Add Item</span>
               </Link>
               <Link
                 to="/donate"
-                className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center space-x-2"
+                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-purple-700 hover:to-pink-600 transition-colors flex items-center space-x-2"
               >
                 <Heart className="h-4 w-4" />
                 <span>Donate</span>
@@ -142,9 +142,9 @@ export const DashboardPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Total Points</p>
-                <p className="text-2xl font-bold text-emerald-600">{userData.user.points}</p>
+                <p className="text-2xl font-bold text-purple-600">{userData.user.points}</p>
               </div>
-              <Award className="h-8 w-8 text-emerald-600" />
+              <Award className="h-8 w-8 text-purple-600" />
             </div>
           </div>
           
@@ -172,9 +172,9 @@ export const DashboardPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">Donations</p>
-                <p className="text-2xl font-bold text-red-600">{userData.donations.length}</p>
+                <p className="text-2xl font-bold text-pink-600">{userData.donations.length}</p>
               </div>
-              <Heart className="h-8 w-8 text-red-600" />
+              <Heart className="h-8 w-8 text-pink-600" />
             </div>
           </div>
 
@@ -205,7 +205,7 @@ export const DashboardPage = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`py-4 px-1 border-b-2 font-medium text-sm relative ${
                     activeTab === tab.id
-                      ? 'border-emerald-500 text-emerald-600'
+                      ? 'border-purple-500 text-purple-600'
                       : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
                 >
@@ -235,10 +235,10 @@ export const DashboardPage = () => {
                     <p className="text-2xl font-bold text-blue-600">{approvedItems.length}</p>
                     <p className="text-sm text-blue-700">Items available for swap</p>
                   </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-green-800 mb-2">Successful Swaps</h4>
-                    <p className="text-2xl font-bold text-green-600">{swappedItems.length}</p>
-                    <p className="text-sm text-green-700">Completed exchanges</p>
+                  <div className="bg-purple-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-purple-800 mb-2">Successful Swaps</h4>
+                    <p className="text-2xl font-bold text-purple-600">{swappedItems.length}</p>
+                    <p className="text-sm text-purple-700">Completed exchanges</p>
                   </div>
                 </div>
 
@@ -269,7 +269,7 @@ export const DashboardPage = () => {
                   <h3 className="text-lg font-semibold text-gray-900">My Items</h3>
                   <Link
                     to="/add-item"
-                    className="bg-emerald-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-emerald-700 transition-colors"
+                    className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-purple-700 transition-colors"
                   >
                     Add New Item
                   </Link>
@@ -315,7 +315,7 @@ export const DashboardPage = () => {
                                   </span>
                                   <Link
                                     to={`/items/${item._id}`}
-                                    className="text-emerald-600 hover:text-emerald-700 text-sm flex items-center"
+                                    className="text-purple-600 hover:text-purple-700 text-sm flex items-center"
                                   >
                                     <Eye className="h-4 w-4 mr-1" />
                                     View
@@ -471,7 +471,7 @@ export const DashboardPage = () => {
                   <h3 className="text-lg font-semibold text-gray-900">My Donations</h3>
                   <Link
                     to="/donate"
-                    className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+                    className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-md text-sm font-medium hover:from-purple-700 hover:to-pink-600 transition-colors"
                   >
                     Make Donation
                   </Link>
@@ -484,7 +484,7 @@ export const DashboardPage = () => {
                     {userData.donations.map((donation) => (
                       <div key={donation._id} className="bg-white border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center space-x-3">
-                          <Heart className="h-8 w-8 text-red-600" />
+                          <Heart className="h-8 w-8 text-pink-600" />
                           <div className="flex-1">
                             <h5 className="font-medium text-gray-900">{donation.title}</h5>
                             <p className="text-sm text-gray-600">{donation.ngo}</p>
